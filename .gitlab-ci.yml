@@ -1,0 +1,30 @@
+stages:
+  - test
+  - sonarqube
+
+variables:
+  SONAR_SCANNER_HOME: "/opt/sonar-scanner"
+  SONARQUBE_URL: "http://your-sonarqube-server"
+  SONAR_TOKEN: "$SONAR_TOKEN"
+
+before_script:
+  - pip install -r requirements.txt
+
+test:
+  stage: test
+  script:
+    - coverage run -m unittest discover
+    - coverage report
+    - coverage xml
+
+sonarqube:
+  stage: sonarqube
+  script:
+    - sonar-scanner \
+      -Dsonar.projectKey=your_project_key \
+      -Dsonar.sources=. \
+      -Dsonar.host.url=$SONARQUBE_URL \
+      -Dsonar.login=$SONAR_TOKEN \
+      -Dsonar.python.coverage.reportPaths=coverage.xml
+  only:
+    - main
